@@ -1,0 +1,394 @@
+:root {
+  --bg: #f2f2f7;
+  --card: #ffffff;
+  --text: #1c1c1e;
+  --sub: #6c6c70;
+  --line: #d1d1d6;
+  --accent: #0a84ff;
+  --accent-text: #ffffff;
+  --danger: #ff3b30;
+  --plus: #248a3d;
+  --minus: #d70015;
+  --chip: #e5e5ea;
+  --shadow: 0 4px 16px rgba(0, 0, 0, .15);
+  /* グラフのメンバー色(固定順・色覚多様性を検証済みのパレット) */
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100;
+  --s5: #e87ba4; --s6: #008300; --s7: #6250d6; --s8: #e34948;
+  --s-other: #8e8e93;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #000000;
+    --card: #1c1c1e;
+    --text: #f2f2f7;
+    --sub: #98989f;
+    --line: #38383a;
+    --accent: #0a84ff;
+    --danger: #ff453a;
+    --plus: #30d158;
+    --minus: #ff6961;
+    --chip: #2c2c2e;
+    --shadow: 0 4px 16px rgba(0, 0, 0, .6);
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+    --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767;
+    --s-other: #7c7c80;
+  }
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+[hidden] { display: none !important; }
+
+html, body { margin: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+  font-size: 17px;
+  line-height: 1.4;
+  min-height: 100dvh;
+  padding-bottom: calc(150px + var(--safe-b));
+  -webkit-text-size-adjust: 100%;
+}
+
+button, input, textarea { font: inherit; color: inherit; }
+
+/* ---------- ヘッダー ---------- */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: 48px 1fr 48px;
+  align-items: center;
+  padding: var(--safe-t) 4px 0;
+  min-height: calc(52px + var(--safe-t));
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border-bottom: 0.5px solid var(--line);
+}
+.topbar h1 {
+  grid-column: 2;
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#backBtn { grid-column: 1; }
+#menuBtn { grid-column: 3; }
+.icon-btn {
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+main { padding: 12px 16px; max-width: 640px; margin: 0 auto; }
+
+/* ---------- リスト ---------- */
+.section-title {
+  margin: 20px 4px 6px;
+  font-size: 13px;
+  color: var(--sub);
+}
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: var(--card);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 10px 16px;
+  border-bottom: 0.5px solid var(--line);
+}
+.list li:last-child { border-bottom: 0; }
+.list .tap { cursor: pointer; }
+.list .tap:active { background: var(--chip); }
+.grow { flex: 1; min-width: 0; }
+.main-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sub-text { font-size: 13px; color: var(--sub); }
+.amount { font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
+.plus { color: var(--plus); }
+.minus { color: var(--minus); }
+.chev { color: var(--sub); }
+.del-btn {
+  border: 0;
+  background: none;
+  color: var(--danger);
+  font-size: 15px;
+  padding: 8px;
+  min-width: 44px;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.empty {
+  text-align: center;
+  color: var(--sub);
+  padding: 48px 16px;
+}
+
+.summary {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+.summary .big { font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* ---------- 支払額の円グラフ ---------- */
+.pie-card { background: var(--card); border-radius: 12px; padding: 4px 0 4px; }
+.pie-card .section-title { margin: 12px 16px 4px; }
+.pie-wrap { position: relative; width: 200px; height: 200px; margin: 4px auto 8px; }
+.pie { width: 100%; height: 100%; display: block; }
+.pie-seg {
+  fill: none;
+  stroke-width: 18;
+  cursor: pointer;
+  transition: opacity .15s;
+}
+.pie-seg.dim { opacity: .25; }
+.pie-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  text-align: center;
+}
+.pie-label { font-size: 13px; color: var(--sub); max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pie-value { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.pie-legend { border-radius: 0; border-top: 0.5px solid var(--line); }
+.pie-legend li { min-height: 44px; padding: 8px 16px; }
+.pie-legend li.zero { opacity: .5; }
+.pie-legend li.selected { background: var(--chip); }
+.pie-legend .sub-text { font-variant-numeric: tabular-nums; min-width: 3em; text-align: right; }
+.swatch { width: 12px; height: 12px; border-radius: 3px; flex: none; }
+
+.transfer { justify-content: space-between; }
+.transfer .arrow { color: var(--sub); }
+
+/* ---------- タブバー / FAB ---------- */
+.tabbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  padding-bottom: var(--safe-b);
+  background: color-mix(in srgb, var(--card) 85%, transparent);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border-top: 0.5px solid var(--line);
+}
+.tab {
+  flex: 1;
+  height: 56px;
+  border: 0;
+  background: none;
+  color: var(--sub);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.tab.active { color: var(--accent); }
+
+.fab {
+  position: fixed;
+  right: 20px;
+  bottom: calc(76px + var(--safe-b));
+  z-index: 11;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 0;
+  background: var(--accent);
+  color: var(--accent-text);
+  font-size: 34px;
+  line-height: 1;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+body.no-tabbar .fab { bottom: calc(24px + var(--safe-b)); }
+.fab[hidden] { display: none; }
+
+/* ---------- ボトムシート ---------- */
+dialog.sheet {
+  width: 100%;
+  max-width: 640px;
+  max-height: 90dvh;
+  margin: auto auto 0;
+  padding: 20px 16px calc(16px + var(--safe-b));
+  border: 0;
+  border-radius: 16px 16px 0 0;
+  background: var(--card);
+  color: var(--text);
+  overflow-y: auto;
+}
+dialog.sheet::backdrop { background: rgba(0, 0, 0, .4); }
+dialog.sheet h2 { margin: 0 0 16px; font-size: 20px; }
+dialog label { display: block; margin-bottom: 14px; font-size: 13px; color: var(--sub); }
+dialog input, dialog textarea {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  font-size: 17px; /* 16px 以上で iOS の自動ズームを防ぐ */
+}
+.amount-input { font-size: 28px !important; font-weight: 700; text-align: right; }
+fieldset { border: 0; margin: 0 0 14px; padding: 0; }
+legend { font-size: 13px; color: var(--sub); margin-bottom: 6px; padding: 0; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  min-height: 40px;
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--line);
+  background: var(--chip);
+  cursor: pointer;
+}
+.chip.on { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+
+.sheet-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.sheet-head h2 { margin: 0 !important; }
+.close-btn {
+  width: 44px;
+  height: 44px;
+  margin-right: -10px;
+  border: 0;
+  background: none;
+  color: var(--sub);
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* 名前入力 + 「追加」ボタン(入力欄の中にボタンを置く) */
+.adder {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0 12px;
+  padding: 6px 6px 6px 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--card);
+}
+.adder:focus-within { border-color: var(--accent); }
+dialog .adder input, .adder input {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 8px 0;
+  border: 0;
+  background: none;
+  outline: none;
+  font-size: 17px;
+}
+.adder-btn {
+  min-height: 44px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--accent);
+  color: var(--accent-text);
+  font-weight: 700;
+  cursor: pointer;
+}
+.adder-btn:disabled { opacity: .45; }
+main .adder { margin-top: 12px; }
+
+.member-chips { margin-bottom: 20px; }
+.member-chips:empty { display: none; }
+.member-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 40px;
+  padding: 0 4px 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--card);
+  font-weight: 700;
+}
+.member-chip button {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.btn.pill { min-height: 56px; border-radius: 28px; font-size: 18px; }
+
+.link-btn {
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font-size: 13px;
+  padding: 0 0 0 8px;
+  cursor: pointer;
+}
+.hint { font-size: 13px; color: var(--sub); min-height: 1.4em; margin: 0 0 8px; }
+
+.actions { display: flex; gap: 10px; margin-top: 8px; }
+.actions .btn { flex: 1; }
+.btn {
+  min-height: 50px;
+  padding: 12px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--chip);
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn.primary { background: var(--accent); color: var(--accent-text); }
+.btn.danger { color: var(--danger); }
+.btn.block { display: block; width: 100%; margin-bottom: 10px; }
+.btn[hidden] { display: none; }
+
+/* ---------- トースト ---------- */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(150px + var(--safe-b));
+  transform: translateX(-50%);
+  z-index: 100;
+  padding: 10px 18px;
+  border-radius: 20px;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 15px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s;
+}
+.toast.show { opacity: 1; }

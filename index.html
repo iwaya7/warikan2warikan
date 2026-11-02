@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="割り勘">
+  <title>割り勘</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="./icons/icon-180.png">
+  <link rel="icon" href="./icons/icon-192.png">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <header class="topbar">
+    <button id="backBtn" class="icon-btn" aria-label="戻る" hidden>‹</button>
+    <h1 id="title">割り勘</h1>
+    <button id="menuBtn" class="icon-btn" aria-label="メニュー">⋯</button>
+  </header>
+
+  <main id="main"></main>
+
+  <nav id="tabbar" class="tabbar" hidden>
+    <button data-tab="expenses" class="tab">支出</button>
+    <button data-tab="settle" class="tab">精算</button>
+    <button data-tab="members" class="tab">メンバー</button>
+  </nav>
+
+  <button id="fab" class="fab" aria-label="追加">+</button>
+
+  <!-- グループ作成 -->
+  <dialog id="groupDialog" class="sheet">
+    <form method="dialog" id="groupForm">
+      <div class="sheet-head">
+        <h2>グループを作成</h2>
+        <button type="button" class="close-btn" aria-label="閉じる">×</button>
+      </div>
+      <label>グループ名
+        <input name="name" required maxlength="40" placeholder="例: 沖縄旅行" autocomplete="off">
+      </label>
+      <label for="draftMemberInput">メンバー名</label>
+      <div class="adder">
+        <input id="draftMemberInput" maxlength="20" placeholder="あおい" autocomplete="off" enterkeyhint="done">
+        <button type="button" id="draftMemberAdd" class="adder-btn">追加</button>
+      </div>
+      <div id="draftMembers" class="chips member-chips"></div>
+      <button value="ok" class="btn primary pill block">グループを作成</button>
+    </form>
+  </dialog>
+
+  <!-- メンバー編集 -->
+  <dialog id="memberDialog" class="sheet">
+    <form method="dialog" id="memberForm">
+      <div class="sheet-head">
+        <h2>メンバーを編集</h2>
+        <button type="button" class="close-btn" aria-label="閉じる">×</button>
+      </div>
+      <label>名前
+        <input name="name" required maxlength="20" autocomplete="off">
+      </label>
+      <button value="ok" class="btn primary pill block">保存</button>
+      <button value="delete" formnovalidate class="btn block danger">このメンバーを削除</button>
+    </form>
+  </dialog>
+
+  <!-- 支出追加 -->
+  <dialog id="expenseDialog" class="sheet">
+    <form method="dialog" id="expenseForm">
+      <h2>支出を記録</h2>
+      <label>金額(円)
+        <input name="amount" required inputmode="numeric" pattern="[0-9,]*" placeholder="0" autocomplete="off" class="amount-input">
+      </label>
+      <label>内容
+        <input name="title" maxlength="40" placeholder="例: 夕食" autocomplete="off">
+      </label>
+      <fieldset>
+        <legend>払った人</legend>
+        <div id="payerChoices" class="chips"></div>
+      </fieldset>
+      <fieldset>
+        <legend>対象メンバー <button type="button" id="toggleAllBtn" class="link-btn">全員</button></legend>
+        <div id="participantChoices" class="chips"></div>
+      </fieldset>
+      <p id="splitPreview" class="hint"></p>
+      <div class="actions">
+        <button value="cancel" formnovalidate class="btn">キャンセル</button>
+        <button value="ok" class="btn primary">記録</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- メニュー -->
+  <dialog id="menuDialog" class="sheet">
+    <form method="dialog">
+      <h2>メニュー</h2>
+      <button value="deleteGroup" class="btn block danger">このグループを削除</button>
+      <div class="actions">
+        <button value="cancel" class="btn">閉じる</button>
+      </div>
+    </form>
+  </dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
