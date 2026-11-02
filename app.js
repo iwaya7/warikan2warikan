@@ -360,7 +360,38 @@ function renderExpenses(group) {
       </li>`;
     })
     .join('');
-  return html + `<p class="section-title">支出</p><ul class="list">${items}</ul>`;
+  return html + renderNextPayer(group) + `<p class="section-title">支出</p><ul class="list">${items}</ul>`;
+}
+
+// 「払う側」の人ごとに、全員で割る支出をいくら立て替えれば差額が 0 になるか。
+// n 人で割る支出を X 円立て替えると差額は X × (n − 1) / n 改善するので X = 不足額 × n / (n − 1)。
+// 見やすいよう 100 円単位で切り上げる。払う額が多い順
+function nextPayerSuggestions(group) {
+  const n = group.members.length;
+  if (n < 2) return [];
+  const balances = computeBalances(group);
+  return group.members
+    .map((m) => ({ member: m, balance: balances.get(m.id).balance }))
+    .filter((s) => s.balance < 0)
+    .sort((a, b) => a.balance - b.balance)
+    .map((s) => ({ ...s, target: Math.ceil((-s.balance * n) / (n - 1) / 100) * 100 }));
+}
+
+function renderNextPayer(group) {
+  const list = nextPayerSuggestions(group);
+  if (!list.length) return '';
+  const items = list.map((s, i) => `<li>
+      <div class="grow">
+        <div class="main-text">${i === 0 ? '<span class="badge">おすすめ</span>' : ''}${esc(s.member.name)}</div>
+        <div class="sub-text">いま ${yen(-s.balance)} 払う側</div>
+      </div>
+      <div class="next-amount">
+        <div class="sub-text">あと約</div>
+        <span class="amount">${yen(s.target)}</span>
+      </div>
+    </li>`).join('');
+  return `<p class="section-title">次は誰が払う?(全員で割る支出をこの額まで立て替えると、その人の支払いがほぼゼロに)</p>
+    <ul class="list">${items}</ul>`;
 }
 
 function renderSettle(group) {
@@ -609,15 +640,17 @@ const expenseState = { payerId: null, participants: new Set() };
 
 function openExpenseDialog(group) {
   $('#expenseForm').reset();
-  expenseState.payerId = group.members[0].id;
+  // 払った人の初期値は「次は誰が払う?」のおすすめの人(いなければ先頭)
+  expenseState.payerId = nextPayerSuggestions(group)[0]?.member.id ?? group.members[0].id;
   expenseState.participants = new Set(group.members.map((m) => m.id));
   renderExpenseChoices(group);
   openDialog($('#expenseDialog'));
 }
 
 function renderExpenseChoices(group) {
+  const suggestedId = nextPayerSuggestions(group)[0]?.member.id;
   $('#payerChoices').innerHTML = group.members.map((m) =>
-    `<button type="button" class="chip ${m.id === expenseState.payerId ? 'on' : ''}" data-payer="${esc(m.id)}">${esc(m.name)}</button>`
+    `<button type="button" class="chip ${m.id === expenseState.payerId ? 'on' : ''}" data-payer="${esc(m.id)}">${esc(m.name)}${m.id === suggestedId ? ' ★' : ''}</button>`
   ).join('');
   $('#participantChoices').innerHTML = group.members.map((m) =>
     `<button type="button" class="chip ${expenseState.participants.has(m.id) ? 'on' : ''}" data-participant="${esc(m.id)}">${esc(m.name)}</button>`
